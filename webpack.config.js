@@ -1,25 +1,45 @@
+const path = require( 'path' );
+const ExtractTextWebpackPlugin = require( 'extract-text-webpack-plugin' );
+
 module.exports = {
-  entry: './src/main.js',
+  entry: [ './src/main.js', './src/styles.scss' ],
   output: {
-    path: './build',
+    path: path.resolve( __dirname, 'public' ),
     filename: 'app.js',
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.vue$/,
-        loader: 'vue',
+        use:{ 
+          loader: 'vue-loader',
+          options: { loaders: { js: 'babel-loader' } }
+        }
       },
       {
         test: /\.js$/,
-        loader: 'babel',
         exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['es2015']
+          }
+        }
       },
-    ],
+      {
+        test: /\.scss$/,
+        use: ExtractTextWebpackPlugin.extract({
+          fallback: 'style-loader',
+          use: ['css-loader', 'sass-loader']
+        })
+      }
+    ] //End Rules
   },
-  vue: {
-    loaders: {
-      js: 'babel',
-    },
+  plugins: [
+    new ExtractTextWebpackPlugin( 'styles.css' )
+  ],
+  devServer: {
+    contentBase: path.resolve( __dirname, './public' )
   },
+  devtool: 'eval-source-map'
 }
